@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom"
-import HomePage from "./pages/HomePage"
-import AuthPage from "./pages/AuthPage"
+import { AuthPage, HomePage, SignInPage, SignUpage } from "./pages"
 
 
 let router = createBrowserRouter([
@@ -10,7 +9,17 @@ let router = createBrowserRouter([
   },
   {
     path: "/auth",
-    element: <AuthPage/>
+    element: <AuthPage/>,
+    children:[
+      {
+        index:true,
+        element:<SignInPage/>
+      },
+      {
+        path:"signup",
+        element:<SignUpage/>
+      }
+    ]
   },
   {
     path:"/",

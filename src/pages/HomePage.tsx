@@ -8,9 +8,8 @@ import {
   Phone,
   Users
 } from "lucide-react";
-import Events from "../components/Events";
-import Notification from "../components/Notification";
-import Programs from "../components/Programs";
+
+import { Events, Notification, Programs } from "../components";
 
 const HomePage = () => {
 
