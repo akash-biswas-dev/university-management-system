@@ -5,10 +5,15 @@ import java.util.List;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public enum UserRole {
-  USER,
-  ADMIN;
+    SYSTEM_ADMIN,
+    HEAD_OF_UNIVERSITY,
+    HEAD_OF_INSTITUTION,
+    HEAD_OF_DEPARTMENT,
+    TEACHER,
+    STUDENT,
+    USER;
 
-  List<SimpleGrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority("ROLE_" + this.name()));
-  }
+    List<SimpleGrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.name()));
+    }
 }
