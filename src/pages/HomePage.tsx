@@ -9,7 +9,7 @@ import {
   Users
 } from "lucide-react";
 
-import { Events, Notification, Programs } from "../components";
+import { Events, Navbar, Notification, Programs } from "../components";
 
 const HomePage = () => {
 
@@ -209,6 +209,7 @@ export default HomePage;
 export const Hero = () => {
   return (
     <section className="relative bg-white overflow-hidden">
+      <Navbar />
       {/* Background Pattern */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-72 h-72 bg-blue-100 rounded-full opacity-20 -translate-x-1/2 -translate-y-1/2"></div>

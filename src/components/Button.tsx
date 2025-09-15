@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -11,6 +12,9 @@ const Button = ({
   loading,
   disabled,
   className,
+  icon,
+  iconPosition = "left",
+  onClick
 }: {
   children: ReactNode;
   variant: ButtonVarient;
@@ -21,6 +25,9 @@ const Button = ({
   loading?: boolean;
   disabled?: boolean;
   className?: string;
+  icon?: ReactNode;
+  iconPosition?: "left" | "right";
+  onClick?: () => void;
 }) => {
   const baseClasses = `
     inline-flex items-center justify-center font-semibold transition-all duration-300 
@@ -69,8 +76,23 @@ const Button = ({
   }
 
   return (
-    <button className={classes} type={buttonType} disabled={disabled}>
+    <button
+      className={classes}
+      type={buttonType}
+      disabled={disabled}
+      onClick={onClick && onClick}
+    >
+      {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+
+      {icon && iconPosition === "left" && !loading && (
+        <span className="mr-2">{icon}</span>
+      )}
+
       {children}
+
+      {icon && iconPosition === "right" && !loading && (
+        <span className="ml-2">{icon}</span>
+      )}
     </button>
   );
 };
