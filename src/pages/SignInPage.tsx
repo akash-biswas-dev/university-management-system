@@ -1,6 +1,8 @@
 import { AlertCircle, ArrowRight, Lock, Mail } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button, Input } from "../components";
+import { Link } from "react-router-dom";
+import useAuthContext from "../context/AuthContext";
 
 type FormErrors = {
   email?: string;
@@ -8,13 +10,15 @@ type FormErrors = {
   general?: string;
 };
 
-
 const SignInPage = () => {
 
-  
+  const {login} = useAuthContext();
 
-  const [formData, setFormData] = useState<{ email: string| undefined; password: string |undefined }>({
-    email: "",
+  const [formData, setFormData] = useState<{
+    username: string | undefined;
+    password: string | undefined;
+  }>({
+    username: "",
     password: "",
   });
 
@@ -22,22 +26,21 @@ const SignInPage = () => {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleEmailChange =(value:string)=>{
+  const handleEmailChange = (value: string) => {
+    setFormData((pre) => ({ ...pre, username: value }));
+  };
 
-  }
+  const handlePasswordChange = (value: string) => {
+    setFormData((pre) => ({ ...pre, password: value }));
+  };
 
-  const handlePasswordChange =(value:string)=>{
-
-  }
-
-  
   const validateForm = () => {
     const newErrors: FormErrors = {};
 
     // Email validation
-    if (!formData.email) {
+    if (!formData.username) {
       newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.username)) {
       newErrors.email = "Please enter a valid email address";
     }
 
@@ -61,25 +64,14 @@ const SignInPage = () => {
 
     setLoading(true);
 
-    // Simulate API call
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Simulate successful login
-      alert("Login successful! Welcome to GlobalTech University.");
-
-      // Reset form
-      setFormData({ email: "", password: "" });
-    } catch (error) {
-      setErrors({ general: "Login failed. Please try again." });
-    } finally {
-      setLoading(false);
-    }
+    await login({
+      username: formData.username!,
+      password: formData.password!
+    });
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100 rounded-full opacity-20 translate-x-1/2 -translate-y-1/2"></div>
@@ -91,7 +83,7 @@ const SignInPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 bg-blue-800 rounded-2xl flex items-center justify-center mb-6">
-            <div className="text-white text-2xl font-bold">GT</div>
+            <Link to={"/home"} className="text-white text-2xl font-bold">GT</Link>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome Back
@@ -102,7 +94,10 @@ const SignInPage = () => {
         </div>
 
         {/* SignIn Form */}
-        <form className="bg-white rounded-2xl shadow-xl p-8" onSubmit={handleSubmit}>
+        <form
+          className="bg-white rounded-2xl shadow-xl p-8"
+          onSubmit={handleSubmit}
+        >
           <div className="space-y-6">
             {/* General Error */}
             {errors.general && (
@@ -118,7 +113,7 @@ const SignInPage = () => {
               type="email"
               placeholder="student@globaltech.edu"
               leftIcon={<Mail />}
-              value={formData.email}
+              value={formData.username}
               onChange={handleEmailChange}
               error={errors.email}
               required
@@ -131,7 +126,7 @@ const SignInPage = () => {
               type="password"
               placeholder="Enter your password"
               leftIcon={<Lock />}
-              showPasswordToggle
+              showPasswordToggle={true}
               value={formData.password}
               onChange={handlePasswordChange}
               error={errors.password}
@@ -178,52 +173,19 @@ const SignInPage = () => {
                 </span>
               </div>
             </div>
-
-            {/* Social Login Options */}
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" size="md" fullWidth>
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                Google
-              </Button>
-
-              <Button variant="outline" size="md" fullWidth>
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M13.397 20.997v-8.196h2.765l.411-3.209h-3.176V7.548c0-.926.258-1.56 1.587-1.56h1.684V3.127A22.336 22.336 0 0 0 14.201 3c-2.444 0-4.122 1.492-4.122 4.231v2.355H7.332v3.209h2.753v8.202h3.312z" />
-                </svg>
-                Facebook
-              </Button>
-            </div>
           </div>
 
           {/* Sign Up Link */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
-              <Button variant="outline" href="/signup" buttonType="navigate" size="sm">
-                Create an Account
-              </Button>
-            </p>
+          <div className="mt-8 text-center flex gap-2 items-center justify-center">
+            <p className="text-sm text-gray-600">Don't have an account? </p>
+            <Button
+              variant="ghost"
+              href="/auth/sign-up"
+              buttonType="navigate"
+              size="sm"
+            >
+              Create an Account
+            </Button>
           </div>
         </form>
 

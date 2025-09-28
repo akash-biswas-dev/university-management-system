@@ -1,9 +1,17 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router-dom"
+import useAuthContext from "../context/AuthContext"
 
 const AuthPage = () => {
+  
+  const {authorization} = useAuthContext();
+  
+  const navigation = useNavigate();
+
+  if(authorization){
+    navigation('/dashboard')
+  }
   return (
     <>
-      <h1>Hello from auth page</h1>
       <Outlet/>
     </>
   )

@@ -21,7 +21,8 @@ const Input = ({
   onBlur,
   disabled = false,
   required = false,
-  className = ''
+  className = '',
+  name
 }:{
   label:string;
   error?:string;
@@ -41,6 +42,7 @@ const Input = ({
   disabled?:boolean;
   required?:boolean;
   className?:string;
+  name?:string
 }) => {
   
   const [showPassword, setShowPassword] = useState(false);
@@ -103,48 +105,30 @@ const Input = ({
     if (onBlur) onBlur(e.target.value);
   };
 
-  const getIconSize = () => {
-    switch (size) {
-      case 'sm': return 'w-4 h-4';
-      case 'lg': return 'w-6 h-6';
-      default: return 'w-5 h-5';
-    }
-  };
 
-  const getIconPosition = () => {
-    switch (size) {
-      case 'sm': return variant === 'underlined' ? 'left-0 top-2' : 'left-3 top-2';
-      case 'lg': return variant === 'underlined' ? 'left-0 top-4' : 'left-4 top-4';
-      default: return variant === 'underlined' ? 'left-0 top-3' : 'left-4 top-3';
-    }
-  };
+  const inputName = label? label.replace(" ", "-").toLocaleLowerCase(): name;
 
-  const getRightIconPosition = () => {
-    switch (size) {
-      case 'sm': return variant === 'underlined' ? 'right-0 top-2' : 'right-3 top-2';
-      case 'lg': return variant === 'underlined' ? 'right-0 top-4' : 'right-4 top-4';
-      default: return variant === 'underlined' ? 'right-0 top-3' : 'right-4 top-3';
-    }
-  };
+
 
   return (
     <div className={`${fullWidth ? 'w-full' : 'w-auto'}`}>
       {label && (
-        <label className={labelClasses}>
+        <label className={labelClasses} id={inputName} htmlFor={inputName}>
           {label}
         </label>
       )}
       
       <div className="relative">
         {leftIcon && (
-          <div className={`absolute ${getIconPosition()} text-gray-400 pointer-events-none`}>
-            <div className={getIconSize()}>
+          <div className={`absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none`}>
+            <span>
               {leftIcon}
-            </div>
+            </span>
           </div>
         )}
         
         <input
+          name={inputName}
           type={inputType}
           className={inputClasses}
           placeholder={placeholder}
@@ -157,7 +141,7 @@ const Input = ({
         />
         
         {(rightIcon || (type === 'password' && showPasswordToggle)) && (
-          <div className={`absolute ${getRightIconPosition()}`}>
+          <div className={`absolute top-1/2 -translate-y-1/2 right-3 flex items-center`}>
             {type === 'password' && showPasswordToggle ? (
               <button
                 type="button"
@@ -165,12 +149,12 @@ const Input = ({
                 className="text-gray-400 hover:text-gray-600 transition-colors duration-200 focus:outline-none focus:text-blue-600"
                 disabled={disabled}
               >
-                <div className={getIconSize()}>
+                <span className='text-sm md:text-lg'>
                   {showPassword ? <EyeOff /> : <Eye />}
-                </div>
+                </span>
               </button>
             ) : (
-              <div className={`text-gray-400 pointer-events-none ${getIconSize()}`}>
+              <div className={`text-gray-400 pointer-events-none text-sm md:text-lg`}>
                 {rightIcon}
               </div>
             )}

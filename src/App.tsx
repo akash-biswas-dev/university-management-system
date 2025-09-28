@@ -1,39 +1,59 @@
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom"
-import { AuthPage, HomePage, SignInPage, SignUpage } from "./pages"
-
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
+import { AuthPage, Dashboard, HomePage, SignInPage } from "./pages";
+import { AuthContextProvider } from "./context/AuthContext";
+import { createContext, useContext } from "react";
 
 let router = createBrowserRouter([
   {
     path: "/home",
-    element: <HomePage/>
+    element: <HomePage />,
   },
   {
     path: "/auth",
-    element: <AuthPage/>,
-    children:[
+    element: <AuthPage />,
+    children: [
       {
-        index:true,
-        element:<SignInPage/>
-      },
-      {
-        path:"signup",
-        element:<SignUpage/>
+        index: true,
+        element: <SignInPage />,
       }
-    ]
+    ],
   },
   {
-    path:"/",
-    element:<Navigate to="/home" replace/>
-  }
-])
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
+    path: "/",
+    element: <Navigate to="/home" replace />,
+  },
+]);
+
+
+
 
 function App() {
 
+  const URL = import.meta.env.VITE_BASE_URL || "";
+
+  console.log(URL);
+
   return (
-    <>
-      <RouterProvider router={router} />
-    </>
-  )
+    <ServerUrlContext.Provider value={URL}>
+      <AuthContextProvider>
+        <RouterProvider router={router} />
+      </AuthContextProvider>
+    </ServerUrlContext.Provider>
+  );
 }
 
-export default App
+export default App;
+
+
+export const ServerUrlContext = createContext<string>("");
+
+
+export const useServerUrlContext = () => useContext(ServerUrlContext);

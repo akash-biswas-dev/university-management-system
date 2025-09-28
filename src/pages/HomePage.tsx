@@ -9,10 +9,20 @@ import {
   Users
 } from "lucide-react";
 
+import { useNavigate } from "react-router-dom";
 import { Events, Navbar, Notification, Programs } from "../components";
+import useAuthContext from "../context/AuthContext";
 
 const HomePage = () => {
 
+
+  const navigation = useNavigate();
+
+  const {authorization} = useAuthContext();
+
+  if(authorization){
+    navigation('/dashboard')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -1,6 +1,6 @@
 import AuthPage from "./AuthPage";
 import HomePage from "./HomePage";
 import SignInPage from "./SignInPage";
-import SignUpage from "./SignUpage";
+import Dashboard from "./Dashboard";
 
-export { AuthPage, HomePage, SignInPage, SignUpage };
+export { AuthPage, HomePage, SignInPage , Dashboard};

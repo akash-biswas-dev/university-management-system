@@ -1,5 +1,7 @@
 import { GraduationCap, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import Button from "./Button";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,30 +24,24 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Left Side - University Name & Logo */}
           <div className="flex items-center space-x-3">
-            <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                isScrolled ? "bg-blue-800" : "bg-white/20 backdrop-blur-sm"
-              }`}
+            <Link
+              to="/home"
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 bg-blue-800 backdrop-blur-sm`}
             >
               <GraduationCap
-                className={`w-6 h-6 transition-colors duration-300 ${
-                  isScrolled ? "text-white" : "text-white"
-                }`}
+                className={`w-6 h-6 transition-colors duration-300 text-white`}
               />
-            </div>
+            </Link>
 
             <div className="flex flex-col">
-              <h1
-                className={`text-xl lg:text-2xl font-bold transition-colors duration-300 ${
-                  isScrolled ? "text-gray-900" : "text-white"
-                }`}
+              <Link
+                to={"/home"}
+                className={`text-xl lg:text-2xl font-bold transition-colors duration-300  text-gray-900 `}
               >
                 GlobalTech University
-              </h1>
+              </Link>
               <span
-                className={`text-xs font-medium transition-colors duration-300 ${
-                  isScrolled ? "text-blue-600" : "text-white/80"
-                }`}
+                className={`text-xs font-medium transition-colors duration-300 text-blue-600`}
               >
                 Empowering Tomorrow
               </span>
@@ -55,26 +51,24 @@ const Navbar = () => {
           {/* Right Side - Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Sign Up Button */}
-            <button
-              className={`px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 ${
-                isScrolled
-                  ? "text-blue-800 hover:bg-blue-50 border-2 border-blue-800 bg-transparent hover:bg-blue-800 hover:text-white"
-                  : "text-white hover:bg-white/20 border-2 border-white/50 bg-transparent hover:bg-white hover:text-blue-900"
-              }`}
+            <Button
+              variant="primary"
+              size="sm"
+              buttonType="navigate"
+              href="/auth"
             >
-              Sign Up
-            </button>
+              Sign In
+            </Button>
 
             {/* Login Button */}
-            <button
-              className={`px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl ${
-                isScrolled
-                  ? "bg-blue-800 hover:bg-blue-900 text-white"
-                  : "bg-white/20 backdrop-blur-sm hover:bg-white text-white hover:text-blue-900 border border-white/30"
-              }`}
+            <Button
+              variant="outline"
+              size="sm"
+              buttonType="navigate"
+              href="/auth/sign-up"
             >
-              Login
-            </button>
+              Sign Up
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
