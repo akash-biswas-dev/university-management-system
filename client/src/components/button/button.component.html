@@ -1,0 +1,41 @@
+@if(buttonType() === "navigate"){
+  <a [routerLink]="href()" [class]="classes()" >
+    @if(icon() && iconPosition() === "left"){
+      @if (loading()) {
+        <lucide-angular class="ml-2" [img]="LoaderCircle"></lucide-angular>
+      } @else {
+        <lucide-angular [img]="icon()" class="ml-2"></lucide-angular>
+      }
+    }
+    {{buttonName()}}
+    @if(icon() && iconPosition() === "right"){
+      @if (loading()) {
+        <lucide-angular class="ml-2" [img]="LoaderCircle"></lucide-angular>
+      } @else {
+        <lucide-angular [img]="icon()" class="ml-2"></lucide-angular>
+      }
+    }
+  </a>
+} @else {
+  <button
+    [class]="classes()"
+    [type]="buttonType()"
+    [disabled]="disabled()"
+    (click)="onClick()"
+  >
+    @if (icon() && iconPosition() === 'left'){
+      <lucide-icon [img]="icon()" class="mr-2"></lucide-icon>
+    }
+
+    {{buttonName()}}
+
+    @if(icon() && iconPosition() === "right"){
+      @if (loading()) {
+        <lucide-angular class="ml-2" [img]="LoaderCircle"></lucide-angular>
+      } @else {
+        <lucide-angular [img]="icon()" class="ml-2"></lucide-angular>
+      }
+    }
+  </button>
+}
+

@@ -1,0 +1,23 @@
+services:
+  agent:
+    container_name: ums_jenkins_builder
+    build:
+      context: .
+      dockerfile: ums-builder.Dockerfile
+      args:
+        ROOT_PASSWORD: 1234
+        JENKINS_USER_PASSWORD: 1234
+    privileged: true
+    restart: always
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM62ZFyBTRyr6tbGzpZcxfsBtofJQ0XXq3+VQspzLY4I akash@workstation
+    networks:
+      - jenkins_network
+    volumes:
+      - ./agent:/home/jenkins/agent:rw
+networks:
+  jenkins_network:
+    driver: bridge
+
+
+

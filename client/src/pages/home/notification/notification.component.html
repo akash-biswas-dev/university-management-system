@@ -1,0 +1,45 @@
+<section class="py-20 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl lg:text-5xl font-bold text-primary mb-6">
+        Latest Announcements
+      </h2>
+      <p class="text-xl text-gray-600">
+        Stay updated with important news and announcements
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+      @for (notification of notifications; track notification.id) {
+        <div
+          class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+        >
+          <div class="flex items-center mb-4">
+            <lucide-angular [img]="Bell" class="h-6 w-6 text-tertiary mr-3"></lucide-angular>
+            <span
+              class="px-3 py-1 rounded-full text-sm font-medium"
+              [class]="notification.type === 'admission' ? 'bg-green-100 text-green-800': notification.type === 'event' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'">
+    {{
+                notification.type.charAt(0).toUpperCase() +
+                notification.type.slice(1)
+              }}
+    </span>
+          </div>
+          <h3 class="text-xl font-bold text-primary mb-3">
+            {{ notification.title }}
+          </h3>
+          <p class="text-gray-600 mb-4">{{ notification.description }}</p>
+          <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">
+    {{ notification.date }}
+    </span>
+            <button class="text-secondary hover:text-primary transition-colors duration-200">
+              <lucide-angular [img]="ChevronRight" class="h-5 w-5"></lucide-angular>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

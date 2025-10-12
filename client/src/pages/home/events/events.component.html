@@ -1,0 +1,55 @@
+<section class="py-20 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl lg:text-5xl font-bold text-primary mb-6">
+        Upcoming Events
+      </h2>
+      <p class="text-xl text-gray-600">
+        Join us for exciting events, seminars, and activities
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (event of events; track event.title){
+        <div
+          class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+        >
+          <div class="flex items-center justify-between mb-4">
+        <span
+          class="px-3 py-1 rounded-full text-sm font-medium"
+          [class]="event.category === 'Conference'
+            ? 'bg-blue-100 text-blue-800'
+            : event.category === 'Career'
+            ? 'bg-green-100 text-green-800'
+            : 'bg-purple-100 text-purple-800'"
+      >
+      {{ event.category }}
+      </span>
+            <lucide-angular [img]="Calendar" class="h-5 w-5 text-secondary"></lucide-angular>
+    </div>
+    <h3 class="text-xl font-bold text-primary mb-3">
+      {{ event.title }}
+    </h3>
+    <div class="space-y-2 text-gray-600">
+      <div class="flex items-center">
+        <lucide-angular class="h-4 w-4 mr-2" [img]="Calendar"></lucide-angular>
+        <span>{{ event.date }}</span>
+      </div>
+      <div class="flex items-center">
+        <lucide-angular class="h-4 w-4 mr-2" [img]="Clock"></lucide-angular>
+        <span>{{ event.time }}</span>
+      </div>
+      <div class="flex items-center">
+        <lucide-angular [img]="MapPin" class="h-4 w-4 mr-2"></lucide-angular>
+        <span>{{ event.location }}</span>
+      </div>
+    </div>
+    <button class="mt-4 w-full bg-secondary hover:bg-primary text-white py-2 px-4 rounded-lg transition-colors duration-300">
+      Learn More
+    </button>
+  </div>
+      }
+
+    </div>
+  </div>
+</section>

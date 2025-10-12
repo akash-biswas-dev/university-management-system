@@ -1,0 +1,63 @@
+<div [class]="fullWidth() ? 'w-full' : 'w-auto'">
+  @if (label()) {
+    <label [class]="labelClasses()" [id]="inputName" [htmlFor]="inputName">
+      {{ label() }}
+    </label>
+  }
+  <div class="relative">
+    @if (leftIcon()) {
+      <div class="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400 pointer-events-none">
+        <span>
+          <lucide-angular [img]="leftIcon()"></lucide-angular>
+        </span>
+      </div>
+    }
+    <input
+      [name]="inputName"
+      [type]="type()"
+      [class]="inputClasses()"
+      [placeholder]="placeholder()"
+      [required]="required()"
+      (focus)="handleFocus($event)"
+      (blur)="handleBlur($event)"
+      [formControl] = "formControlVal()"
+    />
+
+    @if (rightIcon() || (inputType() === 'password' && showPasswordToggle())) {
+
+      <div class="absolute top-1/2 -translate-y-1/2 right-3 flex items-center">
+        @if (inputType() === 'password' && showPasswordToggle()) {
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="text-gray-400 hover:text-gray-600 transition-colors duration-200 focus:outline-none focus:text-blue-600"
+            [disabled]="formControlVal().disabled"
+          >
+            @if (showPassword()) {
+              <lucide-angular class="text-sm md:text-lg cursor-pointer" [img]="EyeOff"></lucide-angular>
+            } @else {
+              <lucide-angular class="text-sm md:text-lg cursor-pointer" [img]="Eye"></lucide-angular>
+            }
+          </button>
+        } @else {
+          <lucide-angular [img]="rightIcon()" class="text-gray-400 pointer-events-none text-sm md:text-lg">
+          </lucide-angular>
+        }
+      </div>
+    }
+  </div>
+  @if (error()) {
+    <p class="mt-2 text-sm text-red-600 flex items-center">
+      <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"/>
+      </svg>
+      {{ error() }}
+    </p>
+  }
+
+  @if (helper()) {
+    <p class="mt-2 text-sm text-gray-500">{{ helper() }}</p>
+  }
+</div>

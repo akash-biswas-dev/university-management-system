@@ -1,0 +1,7 @@
+services:
+  db:
+    image: pos
+    container_name: ums_db
+networks:
+  db_network:
+    driver: bridge
