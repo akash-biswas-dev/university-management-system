@@ -28,12 +28,13 @@ public class AdminConfig {
             if(isAdminUserCreated){
                 log.info("Admin user already exist");
             }
+//            TODO: Create the admin role.
 
             UserModel adminUser = UserModel.builder()
                     .username("admin")
                     .email("admin@email.com")
                     .password(passwordEncoder.encode("password"))
-                    .role(UserRole.SYSTEM_ADMIN)
+                    .role("Admin")
                     .isEnabled(true)
                     .isLocked(false)
                     .build();

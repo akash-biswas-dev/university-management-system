@@ -1,16 +1,15 @@
 package com.cromxt.ums.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.rmi.UnmarshalException;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -22,11 +21,38 @@ import lombok.Setter;
 public class UserProfile {
 
   @Id
-  public String id;
+  public UUID userId;
 
-  @MapsId
+  @MapsId("userId")
   @OneToOne
-  @JoinColumn(name = "id")
-  private UserModel userId;
+  @JoinColumn(name = "user_id")
+  private UserModel userModel;
+
+  @Column(name = "first_name", nullable = false, length = 50)
+  private String firstName;
+
+  @Column(name = "middle_name", length = 50)
+  private String middleName;
+
+  @Column(name = "last_name", nullable = false, length = 50)
+  private String lastName;
+
+  @Column(name = "date_of_birth", nullable = false)
+  private LocalDate dateOfBirth;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "degree_type")
+  private DegreeType degreeType;
+
+  @Column(name = "degree_on",nullable = false,length = 100)
+  private String degreeIn;
+
+  @OneToOne(fetch =  FetchType.LAZY)
+  @JoinColumn(name = "salary_name")
+  private Salary salary;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "address_id")
+  private Address address;
 
 }

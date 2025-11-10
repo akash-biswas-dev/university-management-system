@@ -1,19 +1,13 @@
 package com.cromxt.ums.models;
 
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.UUID;
 
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,29 +23,37 @@ public class UserModel implements UserDetails {
   @Id
   @Getter
   @GeneratedValue(strategy = GenerationType.UUID)
-  private String id;
+  private UUID id;
 
-  @Column(unique = true)
   @Getter
+  @Column(unique = true, nullable = false, length = 100)
   private String email;
 
-  @Column(unique = true)
+  @Column(unique = true, nullable = false, length = 100)
   private String username;
 
+  @Column(nullable = false, length = 100)
   private String password;
 
-  @Enumerated(EnumType.STRING)
-  private UserRole role;
+  @ManyToOne
+  @JoinColumn(name = "role_name")
+  private UserRole roleName;
 
-  @OneToOne(mappedBy = "userId")
-  private UserProfile profile;
-
+  @Column(name = "is_locked", nullable = false)
   private Boolean isLocked;
 
+  @Column(name = "is_enabled", nullable = false)
   private Boolean isEnabled;
+
+  @Column(name = "joined_on", nullable = false)
+  private LocalDate joinedOn;
+
+  @OneToOne(mappedBy = "userModel")
+  private UserProfile profile;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
+//    TODO: Fetch all the permissions from the role entity then create
     return role.getAuthorities();
   }
 
@@ -62,7 +64,7 @@ public class UserModel implements UserDetails {
 
   @Override
   public String getUsername() {
-    return this.id;
+    return this.id.toString();
   }
 
 

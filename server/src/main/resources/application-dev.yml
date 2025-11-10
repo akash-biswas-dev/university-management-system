@@ -3,14 +3,17 @@ jwt:
   issuer: http://localhost:8501
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/localdb
-    username: local
+    url: jdbc:postgresql://localhost:5432/ums-db
+    username: ums
     password: password
     driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: false
+    locations: classpath:db
   jpa:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
 server:
   port: 8501

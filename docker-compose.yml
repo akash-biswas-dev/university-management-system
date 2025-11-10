@@ -1,7 +1,15 @@
 services:
-  db:
-    image: pos
-    container_name: ums_db
+  postgres:
+    container_name: ums-postgres
+    image: postgres:17.5-alpine3.22
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=ums
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=ums-db
+    networks:
+      - db_network
 networks:
   db_network:
     driver: bridge

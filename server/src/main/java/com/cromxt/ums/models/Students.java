@@ -1,19 +1,21 @@
 package com.cromxt.ums.models;
 
-import jakarta.persistence.ElementCollection;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.UUID;
 
-
+@Entity
+@Table(name = "students")
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class UserRole {
+public class Students {
+
   @Id
-  private String roleName;
-  private String description;
+  private UUID id;
+
 }
