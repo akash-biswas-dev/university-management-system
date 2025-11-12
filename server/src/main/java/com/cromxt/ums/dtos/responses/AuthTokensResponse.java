@@ -1,7 +1,8 @@
 package com.cromxt.ums.dtos.responses;
 
-public record AuthTokensDTO(
+public record AuthTokensResponse(
     String accessToken,
-    String refreshToken) {
+    String refreshToken
+) {
 
 }

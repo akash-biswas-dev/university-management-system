@@ -24,6 +24,7 @@ public class RolePermissions {
 
   public RolePermissions(String roleName, Permissions permissions){
     this.id = new RolePermissionId(roleName, permissions);
+    this.role = UserRole.builder().roleName(roleName).build();
   }
 
 }

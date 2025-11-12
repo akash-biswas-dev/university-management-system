@@ -1,5 +1,6 @@
 package com.cromxt.ums.config;
 
+import com.cromxt.ums.filters.RefreshTokenAuthentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -19,14 +20,21 @@ public class JwtConfig {
     String secret = environment.getProperty("jwt.secret");
     String issuer = environment.getProperty("jwt.issuer");
 
-    Assert.notNull(issuer, "issuer must not be null");
-    Assert.notNull(secret, "secret must not be null");
-    return new JwtServiceImpl(secret, issuer);
+    if (secret == null || secret.isEmpty() || issuer == null || issuer.isEmpty()) {
+      throw new IllegalArgumentException("jwt.secret or jwt.issuer is empty");
+    }
+
+    Long expiration = 1000L * 60 * 5; // 5 min
+    Long refreshTokenExpiration = 1000L * 60 * 60 * 24; // 1 day.
+    return new JwtServiceImpl(secret, expiration, refreshTokenExpiration,issuer);
   }
 
   @Bean
-  @Order(Ordered.HIGHEST_PRECEDENCE)
+  @Order(1)
   JwtAuthenticationFilter authenticationFilter(JwtService jwtService) {
     return new JwtAuthenticationFilter(jwtService);
+  }
+  RefreshTokenAuthentication refreshTokenAuthentication(JwtService jwtService){
+    return new RefreshTokenAuthentication(jwtService);
   }
 }

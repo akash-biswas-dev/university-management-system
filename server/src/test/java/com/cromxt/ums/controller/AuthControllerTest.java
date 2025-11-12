@@ -1,9 +1,8 @@
 package com.cromxt.ums.controller;
 
 import com.cromxt.ums.config.SecurityConfig;
-import com.cromxt.ums.dtos.requests.RegisterUserDTO;
-import com.cromxt.ums.dtos.requests.UserCredentialDTO;
-import com.cromxt.ums.dtos.responses.AuthTokensDTO;
+import com.cromxt.ums.dtos.requests.UserCredentials;
+import com.cromxt.ums.dtos.responses.AuthTokensResponse;
 import com.cromxt.ums.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -27,64 +26,58 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(SecurityConfig.class)
 public class AuthControllerTest {
 
-    private static final String BASE_URL = "/api/v1/auth";
+  private static final String BASE_URL = "/api/v1/auth";
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private AuthService authService;
+  @MockitoBean
+  private AuthService authService;
 
-    @MockitoBean
-    private AuthenticationProvider authenticationProvider;
+  @MockitoBean
+  private AuthenticationProvider authenticationProvider;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Test
-    void shouldRegisterUser() throws Exception {
-        RegisterUserDTO registerUserDTO = new RegisterUserDTO("username", "email", "password");
+  @Test
+  void shouldCreateTokens() throws Exception {
 
-        String data = objectMapper.writeValueAsString(registerUserDTO);
+    UserCredentials userCredentials = new UserCredentials("username", "password", true);
 
-        mockMvc.perform(
-                post(BASE_URL + "/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(data)
-                ).andExpect(status().isNoContent());
-    }
 
-    @Test
-    void shouldCreateTokens() throws Exception {
+    AuthTokensResponse authTokensResponse = new AuthTokensResponse(
+      UUID.randomUUID().toString(),
+      UUID.randomUUID().toString());
 
-        UserCredentialDTO userCredentialDTO = new UserCredentialDTO("username", "password", true);
+    when(authService.login(any(UserCredentials.class))).thenReturn(authTokensResponse);
 
-        String accessToken = UUID.randomUUID().toString();
-        String refreshToken = UUID.randomUUID().toString();
+    mockMvc.perform(
+        post(BASE_URL)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(userCredentials))
+      )
+      .andExpect(status().isCreated())
+      .andExpect(content().string(objectMapper.writeValueAsString(authTokensResponse)));
+  }
 
-        AuthTokensDTO authTokensDTO = new AuthTokensDTO(accessToken, refreshToken);
+  @Test
+  void shouldGet404WhenGiveInvalidCredentials() throws Exception {
+    UserCredentials userCredentials = new UserCredentials("username", "password", true);
 
-        when(authService.login(any(UserCredentialDTO.class))).thenReturn(authTokensDTO);
+    BadCredentialsException exception = new BadCredentialsException("User with " + userCredentials.emailOrUsername() + " not found");
 
-        mockMvc.perform(
-                post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userCredentialDTO))
-                )
-                .andExpect(status().isCreated())
-                .andExpect(content().string(objectMapper.writeValueAsString(authTokensDTO)));
-    }
 
-    @Test
-    void shouldGet404WhenGiveInvalidCredentials() throws Exception {
-        UserCredentialDTO userCredentials = new UserCredentialDTO("username", "password", true);
+    when(authService.login(userCredentials)).thenThrow(exception);
 
-        when(authService.login(userCredentials)).thenThrow(new BadCredentialsException("User with "+ userCredentials.emailOrUsername()+" not found"));
-
-        mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(userCredentials))
-        ).andExpect(status().isNotFound())
-                .andExpect(header().string("Message", "User with "+ userCredentials.emailOrUsername()+" not found"));
-    }
+    mockMvc
+      .perform(
+        post(BASE_URL)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(userCredentials))
+      )
+      .andExpect(status().isNotFound())
+      .andExpect(header().string("X-Message", exception.getMessage()));
+  }
 
 }

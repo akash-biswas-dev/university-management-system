@@ -1,22 +1,20 @@
 package com.cromxt.ums.models;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Entity
+@Table(name = "institutions")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Salary {
+public class Institutions {
+
   @Id
-  private String name;
-
-  private String description;
-
-  @Column(nullable = false, precision = 10, scale = 2)
-  private BigDecimal amount;
+  @Column(name = "institution_name", length = 200)
+  private String institutionName;
 }

@@ -1,5 +1,7 @@
 package com.cromxt.ums.config;
 
+import com.cromxt.ums.filters.RefreshTokenAuthentication;
+import jakarta.servlet.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,8 @@ import org.springframework.security.config.annotation.web.configurers.CorsConfig
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import lombok.RequiredArgsConstructor;
@@ -21,21 +25,6 @@ import lombok.RequiredArgsConstructor;
 @Slf4j
 public class SecurityConfig {
 
-    private final AuthenticationProvider authenticationProvider;
-
-    private static final String[] CLIENT_ENDPOINTS = {
-            "/",
-            "/auth/**",
-            "/home/**"
-    };
-
-    private static final String[] PUBLIC_ASSETS = {
-            "/index.html",
-            "/assets/**",
-            "/*.svg",
-            "/*.jpg",
-            "/*.png"
-    };
 
     private static final String[] WHITE_LIST_URLS = {
             "/api/v1/auth/**"
@@ -51,12 +40,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(WHITE_LIST_URLS).permitAll()
-                        .requestMatchers(PUBLIC_ASSETS).permitAll()
-                        .requestMatchers(CLIENT_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionConfigurer->{
-                    exceptionConfigurer.authenticationEntryPoint((req, resp, e) -> {
+                    exceptionConfigurer.authenticationEntryPoint((
+                      req,
+                      resp,
+                      e) -> {
+
                         log.error("Insufficient Authentication with message {} at PATH: {}", e.getMessage(), req.getRequestURI());
                         if(e instanceof InsufficientAuthenticationException) {
                             req.getRequestDispatcher("/").forward(req, resp);
@@ -66,8 +57,12 @@ public class SecurityConfig {
                         req.getRequestDispatcher("/auth").forward(req, resp);
                     });
                 })
-                .authenticationProvider(authenticationProvider)
                 .build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+      return new BCryptPasswordEncoder(12);
     }
 
 }

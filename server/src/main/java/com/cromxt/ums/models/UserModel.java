@@ -1,31 +1,24 @@
 package com.cromxt.ums.models;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.UUID;
 
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserModel implements UserDetails {
+@Getter
+public class UserModel implements UmsUser{
 
   @Id
-  @Getter
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Getter
   @Column(unique = true, nullable = false, length = 100)
   private String email;
 
@@ -35,13 +28,30 @@ public class UserModel implements UserDetails {
   @Column(nullable = false, length = 100)
   private String password;
 
-  @ManyToOne
-  @JoinColumn(name = "role_name")
-  private UserRole roleName;
+  @Column(name = "first_name", nullable = false, length = 50)
+  private String firstName;
 
+  @Column(name = "middle_name", length = 50)
+  private String middleName;
+
+  @Column(name = "last_name", nullable = false, length = 50)
+  private String lastName;
+
+  @Column(name = "date_of_birth", nullable = false)
+  private LocalDate dateOfBirth;
+
+  @Column(name = "contact_number", nullable = false, length = 15)
+  private String contactNumber;
+
+  @ManyToOne
+  @JoinColumn(name = "user_role")
+  private UserRole userRole;
+
+  @Getter(AccessLevel.NONE)
   @Column(name = "is_locked", nullable = false)
   private Boolean isLocked;
 
+  @Getter(AccessLevel.NONE)
   @Column(name = "is_enabled", nullable = false)
   private Boolean isEnabled;
 
@@ -52,35 +62,17 @@ public class UserModel implements UserDetails {
   private UserProfile profile;
 
   @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-//    TODO: Fetch all the permissions from the role entity then create
-    return role.getAuthorities();
-  }
-
-  @Override
-  public String getPassword() {
-    return this.password;
-  }
-
-  @Override
-  public String getUsername() {
+  public String getUserId() {
     return this.id.toString();
   }
 
-
-  public boolean isUserEnabled() {
+  @Override
+  public Boolean isUserEnabled() {
     return this.isEnabled;
   }
 
-  public boolean isUserLocked() {
-      return this.isLocked;
-  }
-
-  public String getRealUsername() {
-    return this.username;
-  }
-
-  public UserRole getUserRole() {
-      return this.role;
+  @Override
+  public Boolean isUserLocked() {
+    return this.isLocked;
   }
 }

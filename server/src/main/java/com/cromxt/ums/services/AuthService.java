@@ -1,14 +1,19 @@
 package com.cromxt.ums.services;
 
-import com.cromxt.ums.dtos.requests.RegisterUserDTO;
-import com.cromxt.ums.dtos.requests.UserCredentialDTO;
-import com.cromxt.ums.dtos.responses.AuthTokensDTO;
-import com.cromxt.ums.dtos.responses.UserDTO;
+import com.cromxt.ums.dtos.requests.UserCredentials;
+import com.cromxt.ums.dtos.responses.AuthTokensResponse;
+import com.cromxt.ums.exception.AccountNotEnabledException;
+import org.springframework.security.authentication.BadCredentialsException;
+
+import javax.security.auth.login.AccountLockedException;
 
 public interface AuthService {
 
-  UserDTO registerUser(RegisterUserDTO registerUser);
+  AuthTokensResponse login(UserCredentials userCredentials) throws
+    AccountLockedException,
+    AccountNotEnabledException,
+    BadCredentialsException;
 
-  AuthTokensDTO login(UserCredentialDTO userCredentials);
+  AuthTokensResponse refreshToken(String userId);
 
 }

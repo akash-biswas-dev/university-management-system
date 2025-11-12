@@ -1,8 +1,12 @@
 package com.cromxt.ums.services;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
+import com.cromxt.ums.models.Permissions;
+import com.cromxt.ums.models.UmsUser;
+import com.cromxt.ums.models.UserModel;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -10,20 +14,15 @@ public interface JwtService {
 
   UserDetails extractUserDetails(String token);
 
-  String generateToken(String userId, Collection<? extends GrantedAuthority> authorities,
-      Map<String, Object> extraPayload);
 
-  String generateToken(UserDetails userDetails, Map<String, Object> extraPayload);
+  String extractUserId(String refreshToken);
 
-  String generateToken(String userId);
-
-  String generateToken(UserDetails userDetails);
+  String generateToken(UmsUser umsUser,
+                       List<Permissions> permissions,
+                       Map<String, Object> extraPayload);
 
   String generateRefreshToken(String userId);
 
-  boolean isTokenExpired(String token);
 
-  default Long getRefreshTokenExpiration() {
-    return 1000L * 60 * 60 * 24 * 15;
-  } // 15 days()
+  boolean isTokenExpired(String token);
 }

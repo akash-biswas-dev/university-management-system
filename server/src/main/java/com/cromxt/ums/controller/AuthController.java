@@ -1,19 +1,20 @@
 package com.cromxt.ums.controller;
 
+import com.cromxt.ums.exception.AccountNotEnabledException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cromxt.ums.dtos.requests.RegisterUserDTO;
-import com.cromxt.ums.dtos.requests.UserCredentialDTO;
-import com.cromxt.ums.dtos.responses.AuthTokensDTO;
+import com.cromxt.ums.dtos.requests.UserCredentials;
+import com.cromxt.ums.dtos.responses.AuthTokensResponse;
 import com.cromxt.ums.services.AuthService;
 
 import lombok.RequiredArgsConstructor;
+
+import javax.security.auth.login.AccountLockedException;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,16 +23,12 @@ public class AuthController {
 
   private final AuthService authService;
 
-
-  @PostMapping(value = "/register")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void registerUser(@RequestBody RegisterUserDTO registerUserDTO) {
-    authService.registerUser(registerUserDTO);
-  }
-
   @PostMapping
-  public ResponseEntity<AuthTokensDTO> login(@RequestBody UserCredentialDTO userCredentialDTO) {
-    AuthTokensDTO tokens = authService.login(userCredentialDTO);
+  public ResponseEntity<AuthTokensResponse> login(
+    @RequestBody UserCredentials userCredentials
+  ) throws AccountNotEnabledException, AccountLockedException {
+
+    AuthTokensResponse tokens = authService.login(userCredentials);
     return new ResponseEntity<>(tokens, HttpStatus.CREATED);
   }
 

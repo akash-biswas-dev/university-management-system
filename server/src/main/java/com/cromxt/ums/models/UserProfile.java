@@ -28,17 +28,7 @@ public class UserProfile {
   @JoinColumn(name = "user_id")
   private UserModel userModel;
 
-  @Column(name = "first_name", nullable = false, length = 50)
-  private String firstName;
-
-  @Column(name = "middle_name", length = 50)
-  private String middleName;
-
-  @Column(name = "last_name", nullable = false, length = 50)
-  private String lastName;
-
-  @Column(name = "date_of_birth", nullable = false)
-  private LocalDate dateOfBirth;
+//  Add more details later.
 
   @Enumerated(EnumType.STRING)
   @Column(name = "degree_type")

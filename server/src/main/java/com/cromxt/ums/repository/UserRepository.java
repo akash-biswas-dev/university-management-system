@@ -8,5 +8,7 @@ import com.cromxt.ums.models.UserModel;
 
 public interface UserRepository extends JpaRepository<UserModel, String> {
 
-  Optional<UserModel> findByEmailOrUsername(String email, String username);
+  Optional<UserModel> findUserModelByUsernameOrEmail(String username, String email);
+
+  String username(String username);
 }

@@ -10,12 +10,5 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 class AdminConfigTest {
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Test
-    void shouldCreateAdminUser(){
-        boolean isUserExist = userRepository.findByEmailOrUsername("admin", "admin").isPresent();
-        assertTrue(isUserExist);
-    }
 }

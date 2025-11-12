@@ -1,12 +1,11 @@
 package com.cromxt.ums.models;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
-
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -18,5 +17,6 @@ import java.util.UUID;
 public class Programs {
 
   @Id
+  @Column(name = "program_name")
   private String programName;
 }

@@ -18,7 +18,8 @@ import java.io.Serializable;
 public class RolePermissionId implements Serializable {
 
   private String roleName;
-  @Column(name = "permission_name")
+
   @Enumerated(EnumType.STRING)
+  @Column(name = "permission_name")
   private Permissions permissionName;
 }
