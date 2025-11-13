@@ -1,16 +1,15 @@
 package com.cromxt.ums.controller;
 
-import com.cromxt.ums.config.SecurityConfig;
 import com.cromxt.ums.dtos.requests.UserCredentials;
 import com.cromxt.ums.dtos.responses.AuthTokensResponse;
 import com.cromxt.ums.services.AuthService;
+import com.cromxt.ums.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,9 +21,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthController.class)
-@Import(SecurityConfig.class)
-public class AuthControllerTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+public class AuthControllerUnitTest {
 
   private static final String BASE_URL = "/api/v1/auth";
 
@@ -35,7 +34,7 @@ public class AuthControllerTest {
   private AuthService authService;
 
   @MockitoBean
-  private AuthenticationProvider authenticationProvider;
+  private UserService userService;
 
   @Autowired
   private ObjectMapper objectMapper;
@@ -45,12 +44,11 @@ public class AuthControllerTest {
 
     UserCredentials userCredentials = new UserCredentials("username", "password", true);
 
-
     AuthTokensResponse authTokensResponse = new AuthTokensResponse(
       UUID.randomUUID().toString(),
       UUID.randomUUID().toString());
 
-    when(authService.login(any(UserCredentials.class))).thenReturn(authTokensResponse);
+    when(authService.login(userCredentials)).thenReturn(authTokensResponse);
 
     mockMvc.perform(
         post(BASE_URL)
@@ -65,7 +63,7 @@ public class AuthControllerTest {
   void shouldGet404WhenGiveInvalidCredentials() throws Exception {
     UserCredentials userCredentials = new UserCredentials("username", "password", true);
 
-    BadCredentialsException exception = new BadCredentialsException("User with " + userCredentials.emailOrUsername() + " not found");
+    BadCredentialsException exception = new BadCredentialsException("User with " + userCredentials.username() + " not found");
 
 
     when(authService.login(userCredentials)).thenThrow(exception);

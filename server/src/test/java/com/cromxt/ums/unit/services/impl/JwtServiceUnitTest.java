@@ -1,25 +1,28 @@
-package com.cromxt.ums.services.impl;
+package com.cromxt.ums.unit.services.impl;
 
 import com.cromxt.ums.models.Permissions;
 import com.cromxt.ums.models.UmsUser;
 import com.cromxt.ums.services.JwtService;
+import com.cromxt.ums.services.impl.JwtServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @ExtendWith(MockitoExtension.class)
-class JwtServiceImplTest {
+class JwtServiceUnitTest {
 
 
   private final JwtService jwtService =
@@ -31,26 +34,18 @@ class JwtServiceImplTest {
     );
 
 
-  private UmsUser user;
+  private UserDetails user;
 
   @BeforeEach
   void setUp() {
-    user = new UmsUser() {
-      @Override
-      public String getUserId() {
-        return "a-long-user-id";
-      }
-
-      @Override
-      public Boolean isUserEnabled() {
-        return true;
-      }
-
-      @Override
-      public Boolean isUserLocked() {
-        return false;
-      }
-    };
+    user = User.builder()
+      .username(UUID.randomUUID().toString())
+      .password("long-passowrd")
+      .accountExpired(false)
+      .accountLocked(false)
+      .credentialsExpired(false)
+      .disabled(false)
+      .build();
   }
 
   @Test
@@ -58,7 +53,7 @@ class JwtServiceImplTest {
     String authToken = jwtService.generateToken(user, List.of(), new HashMap<>());
 
     UserDetails userDetails = jwtService.extractUserDetails(authToken);
-    assertEquals(userDetails.getUsername(), user.getUserId());
+    assertEquals(userDetails.getUsername(), user.getUsername());
   }
 
   @Test

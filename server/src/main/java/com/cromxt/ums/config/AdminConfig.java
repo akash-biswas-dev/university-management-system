@@ -73,7 +73,7 @@ public class AdminConfig {
         .joinedOn(LocalDate.now())
         .dateOfBirth(LocalDate.of(2000, 1, 1))
         .isEnabled(false)
-        .isLocked(false)
+        .isNonLocked(true)
         .build();
 
       UserModel savedUser = userRepository.save(adminUser);

@@ -1,112 +1,90 @@
 package com.cromxt.ums.services;
 
-import com.cromxt.ums.dtos.db.UserPermissions;
+
 import com.cromxt.ums.dtos.requests.UserCredentials;
 import com.cromxt.ums.dtos.responses.AuthTokensResponse;
-import com.cromxt.ums.models.Permissions;
 import com.cromxt.ums.models.UserModel;
 import com.cromxt.ums.models.UserRole;
 import com.cromxt.ums.repository.RolePermissionsRepository;
-import com.cromxt.ums.services.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import javax.security.auth.login.AccountLockedException;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class AuthServiceTest {
 
-  @Mock
+  @MockitoBean
   private UserService userService;
 
-  @Mock
+  @MockitoBean
   private RolePermissionsRepository rolePermissionsRepository;
 
-  @Mock
+  @Autowired
   private JwtService jwtService;
 
-  @Mock
+  @Autowired
+  private AuthService authService;
+
+  @Autowired
   private PasswordEncoder passwordEncoder;
 
-  @InjectMocks
-  private AuthServiceImpl authService;
 
+  private final String password = "password";
+  private final UserRole roleName = new UserRole("Admin", "Long description");
 
-  //  Test data which used to test the methods.
-  private UserModel user;
-
-  private List<UserPermissions> userPermissions;
+  private UserModel userModel;
 
   @BeforeEach
-  void setUp() {
-    this.user = UserModel.builder()
+  void beforeEach() {
+    this.userModel = UserModel.builder()
       .id(UUID.randomUUID())
       .email("test@gmail.com")
       .username("test")
-      .password("password")
-      .userRole(new UserRole("Admin", "Long description"))
-      .isLocked(false)
+      .password(passwordEncoder.encode(password))
+      .userRole(roleName)
+      .isNonLocked(true)
       .isEnabled(true)
+      .dateOfBirth(LocalDate.now())
       .joinedOn(LocalDate.now())
       .build();
-
-    this.userPermissions = List.of(
-      getUserPermission(Permissions.PERMISSION_MANAGE),
-      getUserPermission(Permissions.STUDENT_WRITE)
-    );
-  }
-
-  private UserPermissions getUserPermission(Permissions permissions) {
-    return new UserPermissions() {
-      @Override
-      public Permissions getId_PermissionName() {
-        return permissions;
-      }
-    };
   }
 
   @Test
-  void shouldCreateAuthTokensWhenUserIsFound() throws AccountLockedException {
+  void shouldCreateAuthTokensUserPassCorrectUserNameAndPassword() throws AccountLockedException {
 
-    when(userService.getUserModelByUsernameOrEmail(user.getEmail()))
-      .thenReturn(user);
-    when(passwordEncoder.matches("password", user.getPassword()))
-      .thenReturn(true);
-    when(rolePermissionsRepository.findById_RoleName(user.getUserRole().getRoleName()))
-      .thenReturn(this.userPermissions);
+    UserCredentials userCredentials = new UserCredentials("username", password, false);
 
-    List<Permissions> permissionsList = this.userPermissions.stream()
-      .map(UserPermissions::getId_PermissionName)
-      .toList();
+    when(userService.loadUserByUsername(userCredentials.username())).thenReturn(userModel);
+    when(rolePermissionsRepository.findById_RoleName(roleName.getRoleName())).thenReturn(List.of());
 
-    String accessToken = "Access Token";
-    String refreshToken = "Refresh Token";
+    AuthTokensResponse authTokensResponse = authService.login(userCredentials);
 
-    when(jwtService.generateToken(user,permissionsList,new HashMap<>())).thenReturn(accessToken);
-    when(jwtService.generateRefreshToken(user.getUserId())).thenReturn(refreshToken);
+    String extractedJwtUserId = jwtService.extractUserId(authTokensResponse.accessToken());
 
+    assertEquals(userModel.getUsername(), extractedJwtUserId);
+  }
 
-    UserCredentials userCredentials = new UserCredentials(
-      user.getEmail(),
-      user.getPassword(),
-      true);
+  @Test
+  void shouldRefreshTokensWhenPassUserId() throws  AccountLockedException {
+    when(userService.loadUserByUserId(this.userModel.getId().toString()))
+      .thenReturn(userModel);
+    when(rolePermissionsRepository.findById_RoleName(roleName.getRoleName())).thenReturn(List.of());
 
-    AuthTokensResponse authTokens = authService.login(userCredentials);
+    AuthTokensResponse authTokensResponse = authService.refreshToken(this.userModel.getId().toString());
 
-    assertEquals(accessToken, authTokens.accessToken());
-    assertEquals(refreshToken, authTokens.refreshToken());
+    String extractedJwtUserId = jwtService.extractUserId(authTokensResponse.accessToken());
+
+    assertEquals(userModel.getUsername(), extractedJwtUserId);
   }
 }

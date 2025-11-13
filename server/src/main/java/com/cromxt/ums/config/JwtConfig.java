@@ -1,12 +1,10 @@
 package com.cromxt.ums.config;
 
-import com.cromxt.ums.filters.RefreshTokenAuthentication;
+import com.cromxt.ums.filters.RefreshTokenAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
-import org.springframework.util.Assert;
 
 import com.cromxt.ums.filters.JwtAuthenticationFilter;
 import com.cromxt.ums.services.JwtService;
@@ -34,7 +32,7 @@ public class JwtConfig {
   JwtAuthenticationFilter authenticationFilter(JwtService jwtService) {
     return new JwtAuthenticationFilter(jwtService);
   }
-  RefreshTokenAuthentication refreshTokenAuthentication(JwtService jwtService){
-    return new RefreshTokenAuthentication(jwtService);
+  RefreshTokenAuthenticationFilter refreshTokenAuthentication(JwtService jwtService){
+    return new RefreshTokenAuthenticationFilter(jwtService);
   }
 }

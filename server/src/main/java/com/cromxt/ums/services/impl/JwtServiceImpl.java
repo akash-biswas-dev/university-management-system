@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.cromxt.ums.models.Permissions;
-import com.cromxt.ums.models.UmsUser;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -90,7 +88,7 @@ public class JwtServiceImpl implements JwtService {
 
   @Override
   public String generateToken(
-    UmsUser user,
+    UserDetails user,
     List<Permissions> permissions,
     Map<String, Object> extraClaims
   ) {
@@ -98,11 +96,11 @@ public class JwtServiceImpl implements JwtService {
 
     List<String> authorities = getAuthorities(permissions);
     extraPayload.put(AUTHORITIES, authorities);
-    extraPayload.put(USER_ENABLED, user.isUserEnabled());
-    extraPayload.put(USER_LOCKED, user.isUserLocked());
+    extraPayload.put(USER_ENABLED, user.isEnabled());
+    extraPayload.put(USER_LOCKED, user.isAccountNonLocked());
 
     extraClaims.keySet().forEach(eachKey -> extraPayload.put(eachKey, extraClaims.get(eachKey)));
-    return buildToken(user.getUserId(), extraPayload, expiration);
+    return buildToken(user.getUsername(), extraPayload, expiration);
   }
 
   private static List<String> getAuthorities(List<Permissions> permissions) {

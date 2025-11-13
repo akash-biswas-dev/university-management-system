@@ -14,6 +14,6 @@ public interface AuthService {
     AccountNotEnabledException,
     BadCredentialsException;
 
-  AuthTokensResponse refreshToken(String userId);
+  AuthTokensResponse refreshToken(String userId) throws AccountLockedException;
 
 }

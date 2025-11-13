@@ -4,7 +4,6 @@ import com.cromxt.ums.dtos.db.UserPermissions;
 import com.cromxt.ums.dtos.requests.UserCredentials;
 import com.cromxt.ums.dtos.responses.AuthTokensResponse;
 import com.cromxt.ums.exception.AccountNotEnabledException;
-import com.cromxt.ums.exception.UserNotFoundException;
 import com.cromxt.ums.models.Permissions;
 import com.cromxt.ums.models.UserModel;
 import com.cromxt.ums.models.UserRole;
@@ -14,8 +13,11 @@ import com.cromxt.ums.services.JwtService;
 import com.cromxt.ums.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.AccountLockedException;
@@ -28,30 +30,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-  private final UserService userService;
+  private final AuthenticationManager authenticationManager;
   private final RolePermissionsRepository rolePermissionsRepository;
-  private final PasswordEncoder passwordEncoder;
+  private final UserService userService;
 
 
   @Override
-  public AuthTokensResponse login(UserCredentials userCredentials)
-    throws AccountLockedException,
-    AccountNotEnabledException,
-    BadCredentialsException {
+  public AuthTokensResponse login(UserCredentials userCredentials) throws AccountLockedException {
 
+    UsernamePasswordAuthenticationToken token =
+      new UsernamePasswordAuthenticationToken(userCredentials.username(),
+        userCredentials.password());
+    final Authentication authentication;
 
-    final UserModel user;
-    try {
-      user = userService.getUserModelByUsernameOrEmail(userCredentials.emailOrUsername());
-    } catch (UserNotFoundException e) {
-      log.error(e.getMessage());
-      throw new UserNotFoundException("No user found with username or email: " + userCredentials.emailOrUsername());
+    try{
+      authentication = authenticationManager.authenticate(token);
+    }catch (AuthenticationException ex){
+      log.error(ex.getMessage(), ex);
+      throw new BadCredentialsException("Invalid credentials");
     }
 
-    boolean isPasswordMatched = passwordEncoder.matches(userCredentials.password(), user.getPassword());
+    UserModel user = (UserModel) authentication.getPrincipal();
 
-    if (!isPasswordMatched) {
-      throw new BadCredentialsException("Invalid credentials");
+    if (!user.isEnabled()) {
+      throw new AccountNotEnabledException("Account not enabled");
     }
 
     return generateAuthTokens(user);
@@ -60,17 +62,14 @@ public class AuthServiceImpl implements AuthService {
   private final JwtService jwtService;
 
   @Override
-  public AuthTokensResponse refreshToken(String userId) {
-    return null;
+  public AuthTokensResponse refreshToken(String userId) throws AccountLockedException {
+    UserModel user = userService.loadUserByUserId(userId);
+    return generateAuthTokens(user);
   }
 
-  private AuthTokensResponse generateAuthTokens(UserModel user) throws AccountLockedException, AccountNotEnabledException {
+  private AuthTokensResponse generateAuthTokens(UserModel user) throws AccountLockedException {
 
-    if (!user.isUserEnabled()) {
-      throw new AccountNotEnabledException("Account not enabled");
-    }
-
-    if (user.isUserLocked()) {
+    if (!user.isAccountNonLocked()) {
       throw new AccountLockedException("Account locked");
     }
 
@@ -88,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
       permissions,
       new HashMap<>()
     );
-    String refreshToken = jwtService.generateRefreshToken(user.getUserId());
+    String refreshToken = jwtService.generateRefreshToken(user.getUsername());
     return new AuthTokensResponse(authToken, refreshToken);
   }
 

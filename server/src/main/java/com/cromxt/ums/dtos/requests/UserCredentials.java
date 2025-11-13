@@ -1,7 +1,7 @@
 package com.cromxt.ums.dtos.requests;
 
 public record UserCredentials(
-    String emailOrUsername,
+    String username,
     String password,
     Boolean rememberMe
 ) {

@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
-public class RefreshTokenAuthentication extends OncePerRequestFilter {
+public class RefreshTokenAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
 
@@ -33,7 +33,7 @@ public class RefreshTokenAuthentication extends OncePerRequestFilter {
     @NonNull HttpServletResponse response,
     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-    if(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()){
+    if(SecurityContextHolder.getContext().getAuthentication() != null){
       filterChain.doFilter(request, response);
       return;
     }
@@ -74,6 +74,13 @@ public class RefreshTokenAuthentication extends OncePerRequestFilter {
 //    authentication.setAuthenticated(true);
     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
     SecurityContextHolder.getContext().setAuthentication(authentication);
+
     filterChain.doFilter(request, response);
   }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    return !request.getServletPath().equals("/api/v1/auth/refresh-token");
+  }
+
 }

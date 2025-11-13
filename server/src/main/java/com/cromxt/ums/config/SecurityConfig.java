@@ -1,7 +1,8 @@
 package com.cromxt.ums.config;
 
-import com.cromxt.ums.filters.RefreshTokenAuthentication;
-import jakarta.servlet.Filter;
+import com.cromxt.ums.services.UserService;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,52 +18,42 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import lombok.RequiredArgsConstructor;
-
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Slf4j
 public class SecurityConfig {
 
+//  private final AuthenticationProvider authenticationProvider;
 
-    private static final String[] WHITE_LIST_URLS = {
-            "/api/v1/auth/**"
-    };
 
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  private static final String[] WHITE_LIST_URLS = {
+    "/api/v1/auth/**"
+  };
 
-        return http
-                .csrf(CsrfConfigurer::disable)
-                .cors(CorsConfigurer::disable)
-                .httpBasic(HttpBasicConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(WHITE_LIST_URLS).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(exceptionConfigurer->{
-                    exceptionConfigurer.authenticationEntryPoint((
-                      req,
-                      resp,
-                      e) -> {
+  @Bean
+  SecurityFilterChain filterChain(HttpSecurity http, UserService userService) throws Exception {
 
-                        log.error("Insufficient Authentication with message {} at PATH: {}", e.getMessage(), req.getRequestURI());
-                        if(e instanceof InsufficientAuthenticationException) {
-                            req.getRequestDispatcher("/").forward(req, resp);
-                            return;
-                        }
-//                       Here only handle the exception which occur when make a request to a invalid path
-                        req.getRequestDispatcher("/auth").forward(req, resp);
-                    });
-                })
-                .build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-      return new BCryptPasswordEncoder(12);
-    }
+    return http
+      .csrf(CsrfConfigurer::disable)
+      .cors(CorsConfigurer::disable)
+      .httpBasic(HttpBasicConfigurer::disable)
+      .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      .authorizeHttpRequests(authorize -> authorize
+        .requestMatchers(WHITE_LIST_URLS).permitAll()
+        .anyRequest().authenticated()
+      )
+      .exceptionHandling(exceptionConfigurer -> {
+        exceptionConfigurer.authenticationEntryPoint((
+          req,
+          resp,
+          e) -> {
+          log.error("Insufficient Authentication with message {} at Path: {}", e.getMessage(), req.getServletPath());
+          resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Insufficient Authentication");
+        });
+      })
+      .userDetailsService(userService)
+      .build();
+  }
 
 }

@@ -1,11 +1,16 @@
 package com.cromxt.ums.models;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.*;
 
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "users")
@@ -13,7 +18,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Getter
-public class UserModel implements UmsUser{
+public class UserModel implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,6 +27,7 @@ public class UserModel implements UmsUser{
   @Column(unique = true, nullable = false, length = 100)
   private String email;
 
+  @Getter(AccessLevel.NONE)
   @Column(unique = true, nullable = false, length = 100)
   private String username;
 
@@ -49,7 +55,7 @@ public class UserModel implements UmsUser{
 
   @Getter(AccessLevel.NONE)
   @Column(name = "is_locked", nullable = false)
-  private Boolean isLocked;
+  private Boolean isNonLocked;
 
   @Getter(AccessLevel.NONE)
   @Column(name = "is_enabled", nullable = false)
@@ -61,18 +67,32 @@ public class UserModel implements UmsUser{
   @OneToOne(mappedBy = "userModel")
   private UserProfile profile;
 
+  @Transient
+  private Set<Permissions> permissions;
+
+  public String getRealUsername(){
+    return this.username;
+  }
+
   @Override
-  public String getUserId() {
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+//    TODO: Create the roles from the permissions transient property.
+    return null;
+  }
+
+  @Override
+  public String getUsername() {
     return this.id.toString();
   }
 
   @Override
-  public Boolean isUserEnabled() {
-    return this.isEnabled;
+  public boolean isAccountNonLocked() {
+    return this.isNonLocked;
   }
 
   @Override
-  public Boolean isUserLocked() {
-    return this.isLocked;
+  public boolean isEnabled() {
+    return this.isEnabled;
   }
+
 }
