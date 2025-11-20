@@ -1,0 +1,10 @@
+services:
+  postgres:
+    container_name: ums-db-dev
+    image: postgres:17.5-alpine3.22
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=ums
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=ums-db
