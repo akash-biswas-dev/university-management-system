@@ -1,37 +1,37 @@
-import {Component, computed, input, InputSignal, output, OutputEmitterRef, Signal} from '@angular/core';
-import {LucideAngularModule, ArrowRight, LucideIconData, LoaderCircle} from 'lucide-angular';
-import {RouterLink} from '@angular/router';
+import { Component, computed, input, InputSignal, output, OutputEmitterRef, Signal } from '@angular/core';
+import { LucideAngularModule, ArrowRight, LucideIconData, LoaderCircle } from 'lucide-angular';
+import { RouterLink } from '@angular/router';
 
 
 
 @Component({
-  selector:'app-button',
-  templateUrl:'button.component.html',
-  standalone:true,
+  selector: 'app-button',
+  templateUrl: 'button.component.html',
+  standalone: true,
   imports: [LucideAngularModule, RouterLink]
 })
-export class Button{
+export class Button {
 
-  readonly LoaderCircle= LoaderCircle;
+  readonly LoaderCircle = LoaderCircle;
 
 
   // Input variables.
-  buttonName:InputSignal<string> = input.required<string>();
-  variant:InputSignal<ButtonVariant> = input<ButtonVariant>('primary');
-  size:InputSignal<ButtonSize> = input<ButtonSize>('md');
-  buttonType:InputSignal<ButtonType> = input<ButtonType>('submit');
-  href:InputSignal<string> = input<string>('/');
-  fullWidth:InputSignal<boolean>= input<boolean>(false);
-  loading:InputSignal<boolean> = input<boolean>(false);
-  disabled:InputSignal<boolean> = input<boolean>(false);
-  className:InputSignal<string> = input<string>('');
-  icon:InputSignal<LucideIconData | undefined> = input<LucideIconData| undefined>(undefined);
-  iconPosition:InputSignal<IconPosition> = input<IconPosition>('right');
+  buttonName: InputSignal<string> = input.required<string>();
+  variant: InputSignal<ButtonVariant> = input<ButtonVariant>('primary');
+  size: InputSignal<ButtonSize> = input<ButtonSize>('md');
+  buttonType: InputSignal<ButtonType> = input<ButtonType>('submit');
+  href: InputSignal<string> = input<string>('/');
+  fullWidth: InputSignal<boolean> = input<boolean>(false);
+  loading: InputSignal<boolean> = input<boolean>(false);
+  disabled: InputSignal<boolean> = input<boolean>(false);
+  className: InputSignal<string> = input<string>('');
+  icon: InputSignal<LucideIconData | undefined> = input<LucideIconData | undefined>(undefined);
+  iconPosition: InputSignal<IconPosition> = input<IconPosition>('right');
 
   // Click event emitter.
-  click:OutputEmitterRef<void> = output<void>()
+  click: OutputEmitterRef<void> = output<void>()
 
-  onClick():void{
+  onClick(): void {
     this.click.emit();
   }
 
@@ -43,14 +43,14 @@ export class Button{
 
   private variants = {
     primary:
-      "bg-blue-800 hover:bg-blue-900 text-white focus:ring-blue-500 shadow-lg hover:shadow-xl",
+      "bg-primary hover:bg-slate-800 text-white focus:ring-primary shadow-lg hover:shadow-xl",
     secondary:
-      "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-400 shadow-lg hover:shadow-xl",
+      "bg-secondary hover:bg-blue-700 text-white focus:ring-secondary shadow-lg hover:shadow-xl",
     tertiary:
-      "bg-yellow-500 hover:bg-yellow-600 text-gray-900 focus:ring-yellow-400 shadow-lg hover:shadow-xl",
+      "bg-tertiary hover:bg-amber-600 text-white focus:ring-tertiary shadow-lg hover:shadow-xl",
     outline:
-      "border-2 border-blue-800 text-blue-800 hover:bg-blue-800 hover:text-white focus:ring-blue-500 bg-white",
-    ghost: "text-blue-800 hover:bg-blue-50 focus:ring-blue-500 bg-transparent",
+      "border-2 border-primary text-primary hover:bg-primary hover:text-white focus:ring-primary bg-white",
+    ghost: "text-primary hover:bg-slate-100 focus:ring-primary bg-transparent",
     danger:
       "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-lg hover:shadow-xl",
     success:
@@ -66,7 +66,7 @@ export class Button{
 
 
 
-  readonly classes:Signal<string> = computed<string>(()=>{
+  readonly classes: Signal<string> = computed<string>(() => {
     return `
     ${this.baseClasses}
     ${this.variants[this.variant()]}
