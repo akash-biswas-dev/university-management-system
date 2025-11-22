@@ -8,17 +8,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public interface JwtService {
 
-  UserDetails extractUserDetails(String token);
+
+    Integer getRefreshTokenAge();
+
+    String getIssuer();
+
+    UserDetails extractUserDetails(String token);
 
 
-  String extractUserId(String refreshToken);
+    String extractUserId(String refreshToken);
 
-  String generateToken(UserDetails userDetails,
-                       List<Permissions> permissions,
-                       Map<String, Object> extraPayload);
+    String generateToken(UserDetails userDetails,
+                         List<Permissions> permissions,
+                         Map<String, Object> extraPayload);
 
-  String generateRefreshToken(String userId);
+    String generateRefreshToken(String userId);
 
 
-  boolean isTokenExpired(String token);
 }

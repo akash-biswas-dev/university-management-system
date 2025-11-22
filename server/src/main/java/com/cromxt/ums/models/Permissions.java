@@ -9,7 +9,8 @@ public enum Permissions {
   PERMISSION_MANAGE("permission:manage"),
   STUDENT_READ("student:read"),
   STUDENT_WRITE("student:write"),
-  STUDENT_MANAGE("student:manage");
+  STUDENT_MANAGE("student:manage"),
+  FACULTY_ADD("faculty:add");
 
   private final String permission;
 

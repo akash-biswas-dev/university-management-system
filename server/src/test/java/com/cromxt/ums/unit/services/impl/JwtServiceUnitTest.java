@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -25,83 +26,87 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JwtServiceUnitTest {
 
 
-  private final JwtService jwtService =
-    new JwtServiceImpl(
-      "GLSAKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj",
-      1000L * 60 * 5,
-      1000L * 60 * 60 * 24,
-      "localhost"
-    );
+    private JwtService jwtService;
 
 
-  private UserDetails user;
+    private UserDetails user;
 
-  @BeforeEach
-  void setUp() {
-    user = User.builder()
-      .username(UUID.randomUUID().toString())
-      .password("long-passowrd")
-      .accountExpired(false)
-      .accountLocked(false)
-      .credentialsExpired(false)
-      .disabled(false)
-      .build();
-  }
+    @BeforeEach
+    void setUp() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("jwt.secret", "GLSAKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj");
+        env.setProperty("jwt.expiration", "300000");
+        env.setProperty("jwt.refresh-expiration", "86400000");
+        env.setProperty("jwt.issuer", "localhost");
 
-  @Test
-  void shouldCreateATokenWithAnInstanceOfUmsUser() {
-    String authToken = jwtService.generateToken(user, List.of(), new HashMap<>());
+        this.jwtService = new JwtServiceImpl(env);
 
-    UserDetails userDetails = jwtService.extractUserDetails(authToken);
-    assertEquals(userDetails.getUsername(), user.getUsername());
-  }
+        user = User.builder()
+                .username(UUID.randomUUID().toString())
+                .password("long-passowrd")
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(false)
+                .build();
+    }
 
-  @Test
-  void shouldThrowExceptionWhenTokenExpired() throws InterruptedException {
-    JwtService localService = new JwtServiceImpl(
-      "GLSAKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj",
-      100L,
-      1000L * 60 * 60 * 24,
-      "localhost"
-    );
+    @Test
+    void shouldCreateATokenWithAnInstanceOfUmsUser() {
+        String authToken = jwtService.generateToken(user, List.of(), new HashMap<>());
 
-    String authToken = localService.generateToken(user, List.of(), new HashMap<>());
-    Thread.sleep(200);
-    assertThrows(ExpiredJwtException.class, () ->
-      localService.extractUserDetails(authToken)
-    );
-  }
+        UserDetails userDetails = jwtService.extractUserDetails(authToken);
+        assertEquals(userDetails.getUsername(), user.getUsername());
+    }
 
-  @Test
-  void shouldHaveAllThePermissions() {
+    @Test
+    void shouldThrowExceptionWhenTokenExpired() throws InterruptedException {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("jwt.secret", "GLSAKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj");
+        env.setProperty("jwt.expiration", "100");
+        env.setProperty("jwt.refresh-expiration", "86400000");
+        env.setProperty("jwt.issuer", "localhost");
 
-    List<Permissions> userPermissions = List.of(
-      Permissions.STUDENT_MANAGE,
-      Permissions.PERMISSION_MANAGE
-    );
+        JwtService localService = new JwtServiceImpl(env);
 
-    String authToken = jwtService.generateToken(user,
-      userPermissions,
-      new HashMap<>());
+        String authToken = localService.generateToken(user, List.of(), new HashMap<>());
+        Thread.sleep(200);
+        assertThrows(ExpiredJwtException.class, () ->
+                localService.extractUserDetails(authToken)
+        );
+    }
 
-    UserDetails userDetails = jwtService.extractUserDetails(authToken);
+    @Test
+    void shouldHaveAllThePermissions() {
 
-    assertEquals(userPermissions.size(), userDetails.getAuthorities().size());
-  }
+        List<Permissions> userPermissions = List.of(
+                Permissions.STUDENT_MANAGE,
+                Permissions.PERMISSION_MANAGE
+        );
 
-  @Test
-  void shouldFailedToExtractUserDetailsWhenSecretIsDifferent() {
-    JwtService localService = new JwtServiceImpl(
-      "hVUASKJVLASJBLVAWULAWJHLLHblasBLSHVSLABHBVVHALBJHBv",
-      100L,
-      1000L * 60 * 60 * 24,
-      "localhost"
-    );
+        String authToken = jwtService.generateToken(user,
+                userPermissions,
+                new HashMap<>());
 
-    String authToken = jwtService.generateToken(user, List.of(), new HashMap<>());
-    assertThrows(SignatureException.class, () ->
-      localService.extractUserDetails(authToken)
-    );
-  }
+        UserDetails userDetails = jwtService.extractUserDetails(authToken);
+
+        assertEquals(userPermissions.size(), userDetails.getAuthorities().size());
+    }
+
+    @Test
+    void shouldFailedToExtractUserDetailsWhenSecretIsDifferent() {
+
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("jwt.secret", "GALSKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj");
+        env.setProperty("jwt.expiration", "100");
+        env.setProperty("jwt.refresh-expiration", "86400000");
+        env.setProperty("jwt.issuer", "localhost");
+        JwtService localService = new JwtServiceImpl(env);
+
+        String authToken = jwtService.generateToken(user, List.of(), new HashMap<>());
+        assertThrows(SignatureException.class, () ->
+                localService.extractUserDetails(authToken)
+        );
+    }
 
 }

@@ -25,57 +25,59 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class AuthControllerUnitTest {
 
-  private static final String BASE_URL = "/api/v1/auth";
+    private static final String BASE_URL = "/api/v1/auth";
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @MockitoBean
-  private AuthService authService;
+    @MockitoBean
+    private AuthService authService;
 
-  @MockitoBean
-  private UserService userService;
+    @MockitoBean
+    private UserService userService;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  @Test
-  void shouldCreateTokens() throws Exception {
+    @Test
+    void shouldCreateTokens() throws Exception {
 
-    UserCredentials userCredentials = new UserCredentials("username", "password", true);
+        UserCredentials userCredentials = new UserCredentials("username", "password");
 
-    AuthTokensResponse authTokensResponse = new AuthTokensResponse(
-      UUID.randomUUID().toString(),
-      UUID.randomUUID().toString());
+        AuthTokensResponse authTokensResponse = new AuthTokensResponse(
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
 
-    when(authService.login(userCredentials)).thenReturn(authTokensResponse);
+        when(authService.login(userCredentials, true)).thenReturn(authTokensResponse);
 
-    mockMvc.perform(
-        post(BASE_URL)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(userCredentials))
-      )
-      .andExpect(status().isCreated())
-      .andExpect(content().string(objectMapper.writeValueAsString(authTokensResponse)));
-  }
+        mockMvc.perform(
+                        post(BASE_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userCredentials))
+                                .param("rememberMe", "true")
+                )
+                .andExpect(status().isCreated())
+                .andExpect(content().string(objectMapper.writeValueAsString(authTokensResponse)));
+    }
 
-  @Test
-  void shouldGet404WhenGiveInvalidCredentials() throws Exception {
-    UserCredentials userCredentials = new UserCredentials("username", "password", true);
+    @Test
+    void shouldGet404WhenGiveInvalidCredentials() throws Exception {
+        UserCredentials userCredentials = new UserCredentials("username", "password");
 
-    BadCredentialsException exception = new BadCredentialsException("User with " + userCredentials.username() + " not found");
+        BadCredentialsException exception = new BadCredentialsException("User with " + userCredentials.username() + " not found");
 
 
-    when(authService.login(userCredentials)).thenThrow(exception);
+        when(authService.login(userCredentials, true)).thenThrow(exception);
 
-    mockMvc
-      .perform(
-        post(BASE_URL)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(userCredentials))
-      )
-      .andExpect(status().isNotFound())
-      .andExpect(header().string("X-Message", exception.getMessage()));
-  }
+        mockMvc
+                .perform(
+                        post(BASE_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userCredentials))
+                                .param("rememberMe", "true")
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(header().string("X-Message", exception.getMessage()));
+    }
 
 }

@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.cromxt.ums.models.Permissions;
+import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,31 +22,51 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Service;
 
+@Slf4j
+@Service
 public class JwtServiceImpl implements JwtService {
 
   private final String secret;
   private final String issuer;
   private final Long expiration;
-  private final Long refreshTokenExpiration;
+  private final Long refreshExpiration;
 
   private static final String AUTHORITIES = "authorities";
   private static final String USER_ENABLED = "isUserEnabled";
   private static final String USER_LOCKED = "isUserLocked";
 
 
-  public JwtServiceImpl(
-    String secret,
-    Long expiration,
-    Long refreshTokenExpiration,
-    String issuer) {
-    this.secret = secret;
-    this.expiration = expiration;
-    this.issuer = issuer;
-    this.refreshTokenExpiration = refreshTokenExpiration;
-  }
+    public JwtServiceImpl(Environment environment) {
+        String secret = environment.getProperty("jwt.secret");
+        String issuer = environment.getProperty("jwt.issuer");
+        Long  expiration = environment.getProperty("jwt.expiration", Long.class);
+        Long refreshExpiration = environment.getProperty("jwt.refresh-expiration", Long.class);
 
-  @Override
+        if (secret == null || secret.isEmpty() || issuer == null || issuer.isEmpty() || expiration == null || refreshExpiration == null) {
+            throw new IllegalArgumentException("Some Jwt properties are missing");
+        }
+
+        log.info("Jwt service configured with issuer: {}, expiration: {}, refreshExpiration {}", issuer, expiration, refreshExpiration);
+
+        this.expiration = expiration;
+        this.refreshExpiration = refreshExpiration;
+        this.issuer = issuer;
+        this.secret = secret;
+    }
+
+    @Override
+    public Integer getRefreshTokenAge() {
+        return (int) (this.refreshExpiration /60);
+    }
+
+    @Override
+    public String getIssuer() {
+        return this.issuer;
+    }
+
+    @Override
   public UserDetails extractUserDetails(String token) {
     Claims claims = extractAllClaims(token);
     String userId = claims.getSubject();
@@ -72,19 +95,13 @@ public class JwtServiceImpl implements JwtService {
 
   @Override
   public String generateRefreshToken(String userId) {
-    return buildToken(userId, new HashMap<>(), refreshTokenExpiration);
+    return buildToken(userId, new HashMap<>(), refreshExpiration);
   }
 
   @Override
-  public String extractUserId(String refreshToken) {
+  public String extractUserId(String refreshToken) throws ExpiredJwtException {
     return extractClaim(refreshToken, Claims::getSubject);
   }
-
-  @Override
-  public boolean isTokenExpired(String token) {
-    return extractExpiration(token).before(new Date());
-  }
-
 
   @Override
   public String generateToken(

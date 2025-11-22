@@ -1,5 +1,6 @@
 package com.cromxt.ums.unit.filters;
 
+import com.cromxt.ums.filters.JwtAuthenticationFilter;
 import com.cromxt.ums.models.UserModel;
 import com.cromxt.ums.models.UserRole;
 import com.cromxt.ums.services.AuthService;
@@ -18,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,12 +60,12 @@ class JwtAuthenticationFilterTest {
 
   @BeforeEach
   void beforeEach(){
-    this.jwtService = new JwtServiceImpl(
-      "GLSAKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj",
-      1000L * 60 * 5,
-      1000L * 60 * 60 * 24,
-      "localhost"
-    );
+      MockEnvironment env = new MockEnvironment();
+      env.setProperty("jwt.secret","GLSAKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj");
+      env.setProperty("jwt.expiration","300000" );
+      env.setProperty("jwt.refresh-expiration","86400000");
+      env.setProperty("jwt.issuer", "localhost");
+    this.jwtService = new JwtServiceImpl(env);
     this.filter = new JwtAuthenticationFilter(jwtService);
 
     this.userModel = UserModel.builder()

@@ -8,7 +8,6 @@ import com.cromxt.ums.models.UserModel;
 import com.cromxt.ums.models.UserRole;
 import com.cromxt.ums.repository.RolePermissionsRepository;
 import com.cromxt.ums.services.JwtService;
-import com.cromxt.ums.services.UserService;
 import com.cromxt.ums.services.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,9 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.security.auth.login.AccountLockedException;
 import java.time.LocalDate;
@@ -104,10 +100,9 @@ class AuthServiceUnitTest {
 
     UserCredentials userCredentials = new UserCredentials(
       user.getRealUsername(),
-      user.getPassword(),
-      true);
+      user.getPassword());
 
-    AuthTokensResponse authTokens = authService.login(userCredentials);
+    AuthTokensResponse authTokens = authService.login(userCredentials, true);
 
     assertEquals(accessToken, authTokens.accessToken());
     assertEquals(refreshToken, authTokens.refreshToken());

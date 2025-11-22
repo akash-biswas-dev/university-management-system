@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -49,12 +50,12 @@ class RefreshTokenAuthenticationFilterTest {
 
   @BeforeEach
   void beforeEach(){
-    this.jwtService = new JwtServiceImpl(
-      "GLSAKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj",
-      1000L * 60 * 5,
-      1000L * 60 * 60 * 24,
-      "localhost"
-    );
+      MockEnvironment env = new MockEnvironment();
+      env.setProperty("jwt.secret","GLSAKgvljkAVJKASbjlblJVJSAKbvkjSKBJAbncJKSNKJCBASHBLJVABHHJVLHJhJAWBIULGIVbkj");
+      env.setProperty("jwt.expiration","300000" );
+      env.setProperty("jwt.refresh-expiration","86400000");
+      env.setProperty("jwt.issuer", "localhost");
+    this.jwtService = new JwtServiceImpl(env);
     this.filter = new RefreshTokenAuthenticationFilter(jwtService);
 
     UserModel userModel = UserModel.builder()

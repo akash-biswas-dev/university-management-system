@@ -10,10 +10,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/v1/users")
 public class UserController {
 
-
-  @PostMapping
-  public ResponseEntity<UserProfileResponse> updateProfile(
-    @RequestBody UserProfileRequest userProfileRequest) {
-    return null;
-  }
+    @PostMapping
+    public ResponseEntity<UserProfileResponse> updateProfile(
+            @RequestBody UserProfileRequest userProfileRequest) {
+        return null;
+    }
 }

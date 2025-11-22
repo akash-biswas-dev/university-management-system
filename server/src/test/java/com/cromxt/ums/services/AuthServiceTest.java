@@ -63,12 +63,12 @@ class AuthServiceTest {
   @Test
   void shouldCreateAuthTokensUserPassCorrectUserNameAndPassword() throws AccountLockedException {
 
-    UserCredentials userCredentials = new UserCredentials("username", password, false);
+    UserCredentials userCredentials = new UserCredentials("username", password);
 
     when(userService.loadUserByUsername(userCredentials.username())).thenReturn(userModel);
     when(rolePermissionsRepository.findById_RoleName(roleName.getRoleName())).thenReturn(List.of());
 
-    AuthTokensResponse authTokensResponse = authService.login(userCredentials);
+    AuthTokensResponse authTokensResponse = authService.login(userCredentials, true);
 
     String extractedJwtUserId = jwtService.extractUserId(authTokensResponse.accessToken());
 
@@ -77,11 +77,12 @@ class AuthServiceTest {
 
   @Test
   void shouldRefreshTokensWhenPassUserId() throws  AccountLockedException {
-    when(userService.loadUserByUserId(this.userModel.getId().toString()))
+      String refreshToken = jwtService.generateRefreshToken(userModel.getId().toString());
+      when(userService.loadUserByUserId(this.userModel.getId().toString()))
       .thenReturn(userModel);
     when(rolePermissionsRepository.findById_RoleName(roleName.getRoleName())).thenReturn(List.of());
 
-    AuthTokensResponse authTokensResponse = authService.refreshToken(this.userModel.getId().toString());
+    AuthTokensResponse authTokensResponse = authService.refreshAuthTokens(refreshToken);
 
     String extractedJwtUserId = jwtService.extractUserId(authTokensResponse.accessToken());
 
